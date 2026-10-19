@@ -13,7 +13,8 @@ import {
   MessageSquare,
   ChevronRight,
   ReceiptText,
-  BarChart2
+  BarChart2,
+  LogIn
 } from 'lucide-react';
 import { 
   ResponsiveContainer, 
@@ -25,7 +26,7 @@ import {
   Legend 
 } from 'recharts';
 
-export const DashboardView = ({ openAddTxModal, setCurrentView }) => {
+export const DashboardView = ({ openAddTxModal, setCurrentView, openAuthModal }) => {
   const { user, currency, isAuthenticated, demoLogin } = useAuth();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -74,13 +75,22 @@ export const DashboardView = ({ openAddTxModal, setCurrentView }) => {
         <p className="text-sm text-[#687789] mb-6 leading-relaxed">
           Pennywise helps you keep track of daily expenses, manage category budgets, and understand where your money stands without confusing financial jargon.
         </p>
-        <button
-          onClick={demoLogin}
-          className="px-6 py-3 rounded-xl bg-[#477EAD] hover:bg-[#396992] text-white font-semibold text-sm transition-all shadow-sm flex items-center gap-2 mx-auto"
-        >
-          <span>Try Demo with sample records</span>
-          <ArrowRight className="w-4 h-4" />
-        </button>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+          <button
+            onClick={openAuthModal}
+            className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-[#477EAD] hover:bg-[#396992] text-white font-semibold text-xs tracking-wide transition-all shadow-sm flex items-center justify-center gap-2"
+          >
+            <LogIn className="w-4 h-4" />
+            <span>Sign In to Your Account</span>
+          </button>
+          <button
+            onClick={demoLogin}
+            className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-[#E8F3FF] hover:bg-[#D4E8FC] text-[#477EAD] border border-[#BBD9F5] font-semibold text-xs transition-all flex items-center justify-center gap-2"
+          >
+            <span>Try 1-Click Demo</span>
+            <ArrowRight className="w-4 h-4" />
+          </button>
+        </div>
       </div>
     );
   }

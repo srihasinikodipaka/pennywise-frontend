@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { Navbar } from './components/Navbar';
 import { DashboardView } from './components/DashboardView';
@@ -13,6 +13,7 @@ import { BudgetModal } from './components/BudgetModal';
 import { Database, Cpu, Sparkles } from 'lucide-react';
 
 function MainLayout() {
+  const { isAuthenticated, logout } = useAuth();
   const [currentView, setCurrentView] = useState('dashboard');
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isTxModalOpen, setIsTxModalOpen] = useState(false);
@@ -20,6 +21,36 @@ function MainLayout() {
   const [isBudgetModalOpen, setIsBudgetModalOpen] = useState(false);
   const [budgetTargetMonth, setBudgetTargetMonth] = useState('');
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  // When unauthenticated, ensure user cannot remain on protected views
+  useEffect(() => {
+    if (!isAuthenticated && currentView !== 'dashboard') {
+      setCurrentView('dashboard');
+    }
+  }, [isAuthenticated, currentView]);
+
+  // Handle explicit sign-out action
+  const handleLogout = () => {
+    logout();
+    setCurrentView('dashboard');
+    setIsAuthModalOpen(true);
+  };
+
+  // Listen for global logout or auth expiration events
+  useEffect(() => {
+    const handleGlobalLogout = () => {
+      setCurrentView('dashboard');
+      setIsAuthModalOpen(true);
+    };
+
+    window.addEventListener('pennywise:logout', handleGlobalLogout);
+    window.addEventListener('pennywise:unauthorized', handleGlobalLogout);
+
+    return () => {
+      window.removeEventListener('pennywise:logout', handleGlobalLogout);
+      window.removeEventListener('pennywise:unauthorized', handleGlobalLogout);
+    };
+  }, []);
 
   const openAddTxModal = () => {
     setEditingTransaction(null);
@@ -48,6 +79,7 @@ function MainLayout() {
         setCurrentView={setCurrentView}
         openAuthModal={() => setIsAuthModalOpen(true)}
         openAddTxModal={openAddTxModal}
+        onLogout={handleLogout}
       />
 
       {/* Main Content Area */}
@@ -56,30 +88,34 @@ function MainLayout() {
           <DashboardView
             key={`dash-${refreshTrigger}`}
             openAddTxModal={openAddTxModal}
+            openAuthModal={() => setIsAuthModalOpen(true)}
             setCurrentView={setCurrentView}
           />
         )}
-        {currentView === 'transactions' && (
+        {isAuthenticated && currentView === 'transactions' && (
           <TransactionsView
             key={`tx-${refreshTrigger}`}
             openAddTxModal={openAddTxModal}
             openEditTxModal={openEditTxModal}
           />
         )}
-        {currentView === 'budgets' && (
+        {isAuthenticated && currentView === 'budgets' && (
           <BudgetsView
             key={`bgt-${refreshTrigger}`}
             openBudgetModal={openBudgetModal}
           />
         )}
-        {currentView === 'insights' && (
+        {isAuthenticated && currentView === 'insights' && (
           <InsightsView key={`ins-${refreshTrigger}`} />
         )}
-        {currentView === 'assistant' && (
+        {isAuthenticated && currentView === 'assistant' && (
           <AssistantView key={`asst-${refreshTrigger}`} />
         )}
-        {currentView === 'settings' && (
-          <SettingsView key={`set-${refreshTrigger}`} />
+        {isAuthenticated && currentView === 'settings' && (
+          <SettingsView 
+            key={`set-${refreshTrigger}`}
+            onSignOut={handleLogout}
+          />
         )}
       </main>
 

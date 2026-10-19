@@ -99,7 +99,17 @@ export const AuthProvider = ({ children }) => {
     setToken(null);
     localStorage.removeItem('pennywise_token');
     localStorage.removeItem('pennywise_user');
+    window.dispatchEvent(new Event('pennywise:logout'));
   };
+
+  // Listen for unauthorized/expired token events from API layer
+  useEffect(() => {
+    const handleUnauthorized = () => {
+      logout();
+    };
+    window.addEventListener('pennywise:unauthorized', handleUnauthorized);
+    return () => window.removeEventListener('pennywise:unauthorized', handleUnauthorized);
+  }, []);
 
   const updateCurrency = (newCurrency) => {
     setCurrency(newCurrency);

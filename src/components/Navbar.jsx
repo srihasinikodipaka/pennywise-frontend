@@ -9,12 +9,10 @@ import {
   Settings,
   LogOut, 
   LogIn, 
-  User as UserIcon,
-  CircleDollarSign,
   Plus
 } from 'lucide-react';
 
-export const Navbar = ({ currentView, setCurrentView, openAuthModal, openAddTxModal }) => {
+export const Navbar = ({ currentView, setCurrentView, openAuthModal, openAddTxModal, onLogout }) => {
   const { user, isAuthenticated, logout, currency, updateCurrency, demoLogin } = useAuth();
 
   const navItems = [
@@ -28,6 +26,24 @@ export const Navbar = ({ currentView, setCurrentView, openAuthModal, openAddTxMo
 
   const currencies = ['₹', '$', '€', '£'];
 
+  const handleNavClick = (viewId) => {
+    if (!isAuthenticated && viewId !== 'dashboard') {
+      openAuthModal();
+      return;
+    }
+    setCurrentView(viewId);
+  };
+
+  const handleSignOutClick = () => {
+    if (onLogout) {
+      onLogout();
+    } else {
+      logout();
+      setCurrentView('dashboard');
+      openAuthModal();
+    }
+  };
+
   return (
     <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-[#E6E8EC]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -38,16 +54,19 @@ export const Navbar = ({ currentView, setCurrentView, openAuthModal, openAddTxMo
             onClick={() => setCurrentView('dashboard')}
             title="Go to Home"
           >
-            <div className="w-9 h-9 rounded-xl bg-[#E8F3FF] border border-[#BBD9F5] flex items-center justify-center text-[#477EAD] shadow-sm">
-              <CircleDollarSign className="w-5 h-5 stroke-[2.2]" />
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#477EAD] to-[#6A9FCB] flex items-center justify-center text-white font-extrabold text-base shadow-sm">
+              ₱
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <span className="text-lg font-bold tracking-tight text-[#24364B] font-sans">
-                  penny<span className="text-[#477EAD]">wise</span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-base font-bold tracking-tight text-[#24364B]">
+                  Penny<span className="text-[#477EAD]">wise</span>
+                </span>
+                <span className="text-[10px] bg-[#E8F3FF] text-[#477EAD] font-semibold px-1.5 py-0.5 rounded border border-[#BBD9F5]">
+                  Personal
                 </span>
               </div>
-              <p className="text-[11px] text-[#687789] -mt-0.5 hidden sm:block">
+              <p className="text-[11px] text-[#687789] hidden sm:block">
                 Your money, a little more manageable.
               </p>
             </div>
@@ -61,7 +80,7 @@ export const Navbar = ({ currentView, setCurrentView, openAuthModal, openAddTxMo
               return (
                 <button
                   key={item.id}
-                  onClick={() => setCurrentView(item.id)}
+                  onClick={() => handleNavClick(item.id)}
                   className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 ${
                     isActive
                       ? 'bg-[#E8F3FF] text-[#477EAD] font-semibold border border-[#BBD9F5] shadow-xs'
@@ -83,19 +102,18 @@ export const Navbar = ({ currentView, setCurrentView, openAuthModal, openAddTxMo
                 <button
                   key={curr}
                   onClick={() => updateCurrency(curr)}
-                  className={`px-2 py-0.5 rounded font-mono font-medium transition-colors ${
+                  className={`px-2 py-0.5 rounded text-[11px] font-semibold transition-colors ${
                     currency === curr
-                      ? 'bg-[#477EAD] text-white shadow-xs'
+                      ? 'bg-white text-[#24364B] shadow-xs border border-[#E6E8EC]'
                       : 'text-[#687789] hover:text-[#24364B]'
                   }`}
-                  title={`Switch currency to ${curr}`}
                 >
                   {curr}
                 </button>
               ))}
             </div>
 
-            {/* Quick Add Expense Action */}
+            {/* Quick Record Button */}
             {isAuthenticated && (
               <button
                 onClick={openAddTxModal}
@@ -122,11 +140,13 @@ export const Navbar = ({ currentView, setCurrentView, openAuthModal, openAddTxMo
                   </span>
                 </div>
                 <button
-                  onClick={logout}
-                  className="p-1.5 text-[#687789] hover:text-[#9B2C2C] hover:bg-[#FDE8E8] rounded-lg transition-colors"
+                  onClick={handleSignOutClick}
+                  className="p-1.5 text-[#687789] hover:text-[#9B2C2C] hover:bg-[#FDE8E8] rounded-lg transition-colors flex items-center gap-1"
                   title="Sign out"
+                  aria-label="Sign out"
                 >
                   <LogOut className="w-4 h-4" />
+                  <span className="text-xs hidden sm:inline text-[#9B2C2C] font-medium">Sign Out</span>
                 </button>
               </div>
             ) : (
@@ -158,7 +178,7 @@ export const Navbar = ({ currentView, setCurrentView, openAuthModal, openAddTxMo
             return (
               <button
                 key={item.id}
-                onClick={() => setCurrentView(item.id)}
+                onClick={() => handleNavClick(item.id)}
                 className={`flex flex-col items-center gap-1 py-1 px-2.5 rounded-lg text-[10px] font-medium transition-colors ${
                   isActive 
                     ? 'text-[#477EAD] bg-[#E8F3FF] font-semibold' 

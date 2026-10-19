@@ -2,7 +2,7 @@ import React from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Settings, User, Shield, Coins, LogOut, Check } from 'lucide-react';
 
-export const SettingsView = () => {
+export const SettingsView = ({ onSignOut }) => {
   const { user, currency, updateCurrency, logout } = useAuth();
 
   const currencies = [
@@ -87,7 +87,7 @@ export const SettingsView = () => {
 
         <div className="pt-2">
           <button
-            onClick={logout}
+            onClick={onSignOut || logout}
             className="px-4 py-2 text-xs font-semibold text-[#9B2C2C] bg-[#FDE8E8] hover:bg-[#FCDADA] border border-[#F8B4B4] rounded-xl transition-colors flex items-center gap-2"
           >
             <LogOut className="w-3.5 h-3.5" />

@@ -25,12 +25,10 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      // Token expired or invalid
-      const currentPath = window.location.pathname;
-      if (!currentPath.includes('/login')) {
-        localStorage.removeItem('pennywise_token');
-        localStorage.removeItem('pennywise_user');
-      }
+      // Token expired or invalid: clear storage and notify app
+      localStorage.removeItem('pennywise_token');
+      localStorage.removeItem('pennywise_user');
+      window.dispatchEvent(new Event('pennywise:unauthorized'));
     }
     return Promise.reject(error);
   }
