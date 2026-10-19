@@ -138,4 +138,4 @@ npm run preview
 
 - **Frontend Repository:** https://github.com/srihasinikodipaka/pennywise-frontend
 - **Backend Repository:** https://github.com/srihasinikodipaka/pennywise-backend
-- **Live Render App:** *(Pending initial deployment verification)*
+- **Live Render App:** https://pennywise-frontend-6181.onrender.com/
